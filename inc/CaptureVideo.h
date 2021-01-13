@@ -15,6 +15,7 @@ public:
 	HRESULT SetupVideoWindow(LONG nLeft, LONG nTop, LONG nWidth, LONG nHeight);
 	void ResizeVideoWindow(LONG nLeft, LONG nTop, LONG nWidth, LONG nHeight);
 	void GrabOneFrame(BOOL bGrab); // use ISampleGrabberCallbackCB get a picture
+	void GrabAuthFrame(BOOL bGrab); // use ISampleGrabberCallbackCB get a picture
 	HRESULT HandleGraphCapturePicture(void); //capture picture  use GetCurrentBuffer
 
 private:

@@ -7,9 +7,9 @@
 
 CaptureVideo g_CaptureVideo;
 
-CaptureAudio g_CaptureAudio;
+//CaptureAudio g_CaptureAudio;
 HWND hwndCombo1;
-HWND hwndCombo2;
+//HWND hwndCombo2;
 BSTR bstrDeviceName;
 
 HICON g_hIconLarge;
@@ -19,6 +19,7 @@ int g_nTimerCount = 0;
 
 INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 VOID CALLBACK TimerGetPicture(HWND hDlg, UINT message, UINT_PTR iTimerID, DWORD dwTimer);
+VOID CALLBACK TimerSetAuthPicture(HWND hDlg, UINT message, UINT_PTR iTimerID, DWORD dwTimer);
 VOID SetWindowPosCenter(HWND hDlg);
 
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
@@ -65,7 +66,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			SetWindowPosCenter(hDlg); //set Dialog at window center
 			//////////////////////////////////////////////////////////////////////////
 			g_CaptureVideo.m_App = hDlg;
-			g_CaptureAudio.m_App = hDlg;
+			//g_CaptureAudio.m_App = hDlg;
 			dwBaseUnits = GetDialogBaseUnits(); 
 			hwndCombo1 = CreateWindow(TEXT("COMBOBOX"), TEXT(""), 
 				CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 
@@ -75,13 +76,13 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				(50 * HIWORD(dwBaseUnits)) / 8, 
 				hDlg, (HMENU)ID_COMBOBOX, NULL, NULL);   
 
-			hwndCombo2 = CreateWindow(TEXT("COMBOBOX"), TEXT(""), 
+/*			hwndCombo2 = CreateWindow(TEXT("COMBOBOX"), TEXT(""), 
 				CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 
 				(110 * LOWORD(dwBaseUnits)) / 4, 
 				(2 * HIWORD(dwBaseUnits)) / 8, 
 				(100 * LOWORD(dwBaseUnits)) / 4, 
 				(50 * HIWORD(dwBaseUnits)) / 8, 
-				hDlg, (HMENU)ID_COMBOBOX2, NULL, NULL);   
+				hDlg, (HMENU)ID_COMBOBOX2, NULL, NULL); */  
 
 			//Video
 			g_CaptureVideo.EnumAllDevices(hwndCombo1); //Enum All Camera
@@ -95,21 +96,28 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				Msg(hDlg,TEXT("没有摄像头设备"));
 				EnableWindow(GetDlgItem(hDlg,IDC_PREVIWE),FALSE);
+				EnableWindow(GetDlgItem(hDlg, IDONESHOT), FALSE);
 			}
-			EnableWindow(GetDlgItem(hDlg,IDONESHOT),FALSE);
-
-			// Audio
-			g_CaptureAudio.EnumAllDevices(hwndCombo2);
-			nGetComboxCount = ComboBox_GetCount(hwndCombo2);
-			if (nGetComboxCount == 0)
-				ComboBox_Enable(hwndCombo2,FALSE);
 			else
-				ComboBox_SetCurSel(hwndCombo2,0);
-			if(g_CaptureAudio.m_nCaptureDeviceNumber == 0)
 			{
-				Msg(hDlg,TEXT("没有音频设备"));
-				EnableWindow(GetDlgItem(hDlg,IDC_PREVIWE),FALSE);
+				iGetCurSel = ComboBox_GetCurSel(hwndCombo1);
+				g_CaptureVideo.OpenDevice(iGetCurSel, 20, 30, 430, 400);
+				EnableWindow(GetDlgItem(hDlg, IDONESHOT), TRUE);
 			}
+			//EnableWindow(GetDlgItem(hDlg,IDONESHOT),FALSE);
+
+			//// Audio
+			//g_CaptureAudio.EnumAllDevices(hwndCombo2);
+			//nGetComboxCount = ComboBox_GetCount(hwndCombo2);
+			//if (nGetComboxCount == 0)
+			//	ComboBox_Enable(hwndCombo2,FALSE);
+			//else
+			//	ComboBox_SetCurSel(hwndCombo2,0);
+			//if(g_CaptureAudio.m_nCaptureDeviceNumber == 0)
+			//{
+			//	Msg(hDlg,TEXT("没有音频设备"));
+			//	EnableWindow(GetDlgItem(hDlg,IDC_PREVIWE),FALSE);
+			//}
         }
 		return TRUE;
 	case WM_DESTROY:
@@ -129,21 +137,24 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDONESHOT:
             {
                 //g_CaptureVideo.GrabOneFrame(TRUE);
-				SetTimer(hDlg,ID_TIMER,150, TimerGetPicture);
+				SetTimer(hDlg,ID_TIMER,50, TimerGetPicture);
             }
 			break;
 		
 		case IDC_PREVIWE:
 			{
+				// set auth image
+				SetTimer(hDlg, ID_TIMER, 50, TimerSetAuthPicture);
+
 				//Video
-				iGetCurSel = ComboBox_GetCurSel(hwndCombo1);
-				g_CaptureVideo.OpenDevice(iGetCurSel,20,30,430,400);
-				EnableWindow(GetDlgItem(hDlg,IDONESHOT),TRUE);
+				//iGetCurSel = ComboBox_GetCurSel(hwndCombo1);
+				//g_CaptureVideo.OpenDevice(iGetCurSel,20,30,430,400);
+				//EnableWindow(GetDlgItem(hDlg,IDONESHOT),TRUE);
 
 				//Audio
-				iGetCurSel = ComboBox_GetCurSel(hwndCombo2);
-				bstrDeviceName = SysAllocString(g_CaptureAudio.m_pCapDeviceName[iGetCurSel]);
-				g_CaptureAudio.OpenDevice(bstrDeviceName);
+				//iGetCurSel = ComboBox_GetCurSel(hwndCombo2);
+				//bstrDeviceName = SysAllocString(g_CaptureAudio.m_pCapDeviceName[iGetCurSel]);
+				//g_CaptureAudio.OpenDevice(bstrDeviceName);
 			}
 			break;
 		default: break;
@@ -157,7 +168,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 VOID CALLBACK TimerGetPicture(HWND hDlg, UINT message, UINT_PTR iTimerID, DWORD dwTimer)
 {
-	if(g_nTimerCount < 25)
+	if(g_nTimerCount < 1)
 	{
 		g_CaptureVideo.GrabOneFrame(TRUE);
 		g_nTimerCount++;
@@ -166,6 +177,12 @@ VOID CALLBACK TimerGetPicture(HWND hDlg, UINT message, UINT_PTR iTimerID, DWORD 
 		KillTimer(hDlg,ID_TIMER);
 		g_nTimerCount = 0;
 	}
+}
+
+VOID CALLBACK TimerSetAuthPicture(HWND hDlg, UINT message, UINT_PTR iTimerID, DWORD dwTimer)
+{
+	g_CaptureVideo.GrabAuthFrame(TRUE);
+	KillTimer(hDlg, ID_TIMER);
 }
 
 VOID SetWindowPosCenter(HWND hDlg)

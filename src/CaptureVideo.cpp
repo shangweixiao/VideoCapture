@@ -317,6 +317,14 @@ void CaptureVideo::GrabOneFrame(BOOL bGrab)
 {
 	m_bGetOneShot = bGrab;
 	g_sampleGrabberCB.m_bGetPicture = bGrab;
+	g_sampleGrabberCB.m_bGetAuthPicture = FALSE;
+}
+
+void CaptureVideo::GrabAuthFrame(BOOL bGrab)
+{
+	m_bGetOneShot = bGrab;
+	g_sampleGrabberCB.m_bGetPicture = bGrab;
+	g_sampleGrabberCB.m_bGetAuthPicture = bGrab;
 }
 
 HRESULT CaptureVideo::HandleGraphCapturePicture(void)

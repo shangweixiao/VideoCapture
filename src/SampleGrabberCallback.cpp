@@ -60,9 +60,19 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 	SYSTEMTIME sysTime;
 	GetLocalTime(&sysTime);
 	StringCchCopy(m_chSwapStr,MAX_PATH,m_chTempPath);
-	StringCchPrintf(m_chDirName,MAX_PATH,TEXT("\\%04i%02i%02i%02i%02i%02i%03ione.bmp"),
-					sysTime.wYear,sysTime.wMonth,sysTime.wDay,sysTime.wHour,
-					sysTime.wMinute,sysTime.wSecond,sysTime.wMilliseconds);
+	if (m_bGetAuthPicture)
+	{
+		StringCchPrintf(m_chDirName, MAX_PATH, TEXT("\\videoauth.bmp"),
+			sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour,
+			sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
+	}
+	else
+	{
+		StringCchPrintf(m_chDirName, MAX_PATH, TEXT("\\%04i%02i%02i%02i%02i%02i%03ione.bmp"),
+			sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour,
+			sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
+	}
+
 	StringCchCat(m_chSwapStr,MAX_PATH,m_chDirName);
 	// %temp%/CaptureBmp/*
 	//MessageBox(NULL,chTempPath,TEXT("Message"),MB_OK);
@@ -95,35 +105,35 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 	WriteFile( hf, pBuffer, lBufferSize, &dwWritten, NULL );
 	CloseHandle( hf );
 
-	// 同时保存jpg图片
-	char szSrcFileName[MAX_PATH];
-	char szDstFileName[MAX_PATH];
-	memset(szSrcFileName, 0, sizeof(char)*(MAX_PATH));
-	memset(szDstFileName, 0, sizeof(char)*(MAX_PATH));
-#ifdef _UNICODE
-	DWORD num = WideCharToMultiByte(CP_ACP, 0, m_chSwapStr, -1, NULL, 0, NULL, 0);
-	char *pbuf = NULL;
-	pbuf = (char*)malloc(num * sizeof(char)) + 1;
-	if (pbuf == NULL)
-	{
-	    free(pbuf);
-		return false;
-	}
-	memset(pbuf, 0, num * sizeof(char) + 1);
-	WideCharToMultiByte(CP_ACP, 0, m_chSwapStr, -1, pbuf, num, NULL, 0);
-#else
-	pbuf = (char*)m_chSwapStr;
-#endif
-
-	size_t len = strlen(pbuf);
-	memcpy(szSrcFileName, pbuf, len);
-	memcpy(szDstFileName, pbuf, len);
-	memcpy(szDstFileName + len - 3, "jpg", 3);
-	CImageFormatConversion	ifc;
-	bool bRet = ifc.ToJpg(szSrcFileName, szDstFileName, 100);
-
-	memcpy(szDstFileName + len - 3, "png", 3);
-	bRet = ifc.ToPng(szSrcFileName, szDstFileName);
+//	// 同时保存jpg图片
+//	char szSrcFileName[MAX_PATH];
+//	char szDstFileName[MAX_PATH];
+//	memset(szSrcFileName, 0, sizeof(char)*(MAX_PATH));
+//	memset(szDstFileName, 0, sizeof(char)*(MAX_PATH));
+//#ifdef _UNICODE
+//	DWORD num = WideCharToMultiByte(CP_ACP, 0, m_chSwapStr, -1, NULL, 0, NULL, 0);
+//	char *pbuf = NULL;
+//	pbuf = (char*)malloc(num * sizeof(char)) + 1;
+//	if (pbuf == NULL)
+//	{
+//	    free(pbuf);
+//		return false;
+//	}
+//	memset(pbuf, 0, num * sizeof(char) + 1);
+//	WideCharToMultiByte(CP_ACP, 0, m_chSwapStr, -1, pbuf, num, NULL, 0);
+//#else
+//	pbuf = (char*)m_chSwapStr;
+//#endif
+//
+//	size_t len = strlen(pbuf);
+//	memcpy(szSrcFileName, pbuf, len);
+//	memcpy(szDstFileName, pbuf, len);
+//	memcpy(szDstFileName + len - 3, "jpg", 3);
+//	CImageFormatConversion	ifc;
+//	bool bRet = ifc.ToJpg(szSrcFileName, szDstFileName, 100);
+//
+//	memcpy(szDstFileName + len - 3, "png", 3);
+//	bRet = ifc.ToPng(szSrcFileName, szDstFileName);
 
 	return TRUE;
 }

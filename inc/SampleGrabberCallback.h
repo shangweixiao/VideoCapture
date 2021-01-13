@@ -16,6 +16,7 @@ public:
 	BOOL SaveBitmap(BYTE * pBuffer, long lBufferSize ); //±£´æbitmapÍ¼Æ¬
 public:
 	BOOL m_bGetPicture;  // is get a picture
+	BOOL m_bGetAuthPicture;
 	long m_lWidth;       //´æ´¢Í¼Æ¬µÄ¿í¶È
 	long m_lHeight;		 //´æ´¢Í¼Æ¬µÄ³¤¶È
 	int  m_iBitCount;    //the number of bits per pixel (bpp)

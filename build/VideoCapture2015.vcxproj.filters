@@ -42,6 +42,7 @@
     <ClInclude Include="..\inc\ImageFormatConversion.h">
       <Filter>inc</Filter>
     </ClInclude>
+    <ClInclude Include="..\res\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="inc">
