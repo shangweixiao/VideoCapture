@@ -135,10 +135,10 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 		return TRUE;
 
 	// 人脸对比
-	static XHF_SESS sess = NULL;
+	XHF_SESS sess = NULL;
 	if (NULL == sess)
 	{
-		int FECreateCode = FECreate(&sess, 2);
+		int FECreateCode = FECreate(&sess);
 		if (FECreateCode != XHF_OK)
 		{
 			std::cout << FECreateCode << "FECreate error" << std::endl << std::flush;
@@ -168,6 +168,8 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 		//Msg(NULL, TEXT("相似度小于85%"));
 		LockWorkStation();
 	}
+
+	FEDestroy(&sess);
 
 	return TRUE;
 }

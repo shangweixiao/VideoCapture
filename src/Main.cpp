@@ -136,6 +136,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
         {
 			g_CaptureVideo.CloseInterface();
+			XHFFinal();
 			PostQuitMessage(0);
         }
 		break;
@@ -144,6 +145,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case IDCANCEL:
             {
+				XHFFinal();
                 PostQuitMessage(0);
             }
            break;
@@ -204,8 +206,6 @@ VOID SetWindowPosCenter(HWND hDlg)
 	cySetPos = (cyWindow-cyDialog)/2;
 
 	SetWindowPos(hDlg,NULL,cxSetPos,cySetPos,0,0,SWP_NOSIZE);
-
-
 }
 
 
