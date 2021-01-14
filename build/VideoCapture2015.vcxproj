@@ -149,6 +149,7 @@
     <ClCompile Include="../src/common.cpp" />
     <ClCompile Include="../src/Main.cpp" />
     <ClCompile Include="../src/SampleGrabberCallback.cpp" />
+    <ClCompile Include="..\src\AuthApp.cpp" />
     <ClCompile Include="..\src\ImageFormatConversion.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +159,7 @@
     <ClInclude Include="../inc/qedit.h" />
     <ClInclude Include="../inc/SampleGrabberCallback.h" />
     <ClInclude Include="../inc/resource.h" />
+    <ClInclude Include="..\inc\AuthApp.h" />
     <ClInclude Include="..\inc\ImageFormatConversion.h" />
     <ClInclude Include="..\inc\xhfacelite_api.h" />
     <ClInclude Include="..\inc\xhfacelite_type.h" />

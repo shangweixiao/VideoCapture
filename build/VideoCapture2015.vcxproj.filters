@@ -19,6 +19,9 @@
     <ClCompile Include="..\src\ImageFormatConversion.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\AuthApp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../inc/CaptureAudio.h">
@@ -47,6 +50,9 @@
       <Filter>inc</Filter>
     </ClInclude>
     <ClInclude Include="..\inc\xhfacelite_type.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\AuthApp.h">
       <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>

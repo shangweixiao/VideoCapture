@@ -10,10 +10,19 @@
 SampleGrabberCallback::SampleGrabberCallback()
 {
 	m_bGetPicture = FALSE;
+
 	//Get template path
 	GetTempPath(MAX_PATH,m_chTempPath);
 	StringCchCat(m_chTempPath,MAX_PATH,TEXT("CaptureBmp"));
 	CreateDirectory(m_chTempPath,NULL);
+}
+
+SampleGrabberCallback::~SampleGrabberCallback()
+{
+	if (NULL != authapp)
+	{
+		delete authapp;
+	}
 }
 
 ULONG STDMETHODCALLTYPE SampleGrabberCallback::AddRef()
@@ -92,8 +101,7 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 	}
 	else
 	{
-		StringCchPrintf(m_chDirName, MAX_PATH, TEXT("\\%02i%02i%02ione.bmp"),
-			sysTime.wHour,sysTime.wMinute, sysTime.wSecond);
+		StringCchPrintf(m_chDirName, MAX_PATH, TEXT("\\%02i%02ione.bmp"),sysTime.wMinute, sysTime.wSecond);
 	}
 
 	StringCchCat(authpath, MAX_PATH, m_chSwapStr);
@@ -166,7 +174,21 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 	{
 		std::cout << FECompareFaceCode << "FECompareFace error" << std::endl << std::flush;
 		//Msg(NULL, TEXT("相似度小于85%"));
-		LockWorkStation();
+		//LockWorkStation();
+		if (NULL != authapp)
+		{
+			authapp->CloseIE();
+			delete authapp;
+			authapp = NULL;
+		}
+	}
+	else
+	{
+		if (NULL == authapp)
+		{
+			authapp = new AuthApp();
+			authapp->OpenIE();
+		}
 	}
 
 	FEDestroy(&sess);

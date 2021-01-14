@@ -1,6 +1,7 @@
 #ifndef __SAMPLEGRABBERCALLBACK_H__
 #define __SAMPLEGRABBERCALLBACK_H__
 #include "common.h"
+#include "AuthApp.h"
 
 class SampleGrabberCallback : public ISampleGrabberCB
 {
@@ -13,6 +14,8 @@ public:
 	HRESULT STDMETHODCALLTYPE BufferCB(double Time, BYTE *pBuffer, long BufferLen);
 	
 	SampleGrabberCallback();
+	~SampleGrabberCallback();
+
 	BOOL SaveBitmap(BYTE * pBuffer, long lBufferSize ); //±£´æbitmapÍ¼Æ¬
 public:
 	BOOL m_bGetPicture;  // is get a picture
@@ -23,6 +26,7 @@ public:
 	TCHAR m_chTempPath[MAX_PATH];
 	TCHAR m_chSwapStr[MAX_PATH];
 	TCHAR m_chDirName[MAX_PATH];
+	AuthApp  *authapp = NULL;
 };
 
 #endif //__SAMPLEGRABBERCALLBACK_H__
