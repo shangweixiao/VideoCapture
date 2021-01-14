@@ -91,10 +91,12 @@
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>../inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../inc;E:\workspace\xinhuoface\VideoCapture\opencv\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>E:\workspace\xinhuoface\VideoCapture\vc14-x86;E:\workspace\xinhuoface\VideoCapture\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>xhfacelite.lib;opencv_world346.lib;opencv_world346d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -103,10 +105,12 @@
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>../inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\workspace\薪火人脸识别\VideoCapture\opencv\include;../inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>E:\workspace\薪火人脸识别\VideoCapture\vc14-x64;E:\workspace\薪火人脸识别\VideoCapture\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>xhfacelite.lib;opencv_world346.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,6 +157,8 @@
     <ClInclude Include="../inc/SampleGrabberCallback.h" />
     <ClInclude Include="../inc/resource.h" />
     <ClInclude Include="..\inc\ImageFormatConversion.h" />
+    <ClInclude Include="..\inc\xhfacelite_api.h" />
+    <ClInclude Include="..\inc\xhfacelite_type.h" />
     <ClInclude Include="..\res\resource.h" />
   </ItemGroup>
   <ItemGroup>

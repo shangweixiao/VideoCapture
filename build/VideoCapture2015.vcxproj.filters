@@ -43,6 +43,12 @@
       <Filter>inc</Filter>
     </ClInclude>
     <ClInclude Include="..\res\resource.h" />
+    <ClInclude Include="..\inc\xhfacelite_api.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\xhfacelite_type.h">
+      <Filter>inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="inc">

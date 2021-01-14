@@ -1,5 +1,11 @@
 #include "SampleGrabberCallback.h"
 #include "ImageFormatConversion.h"
+#include "xhfacelite_type.h"
+#include "xhfacelite_api.h"
+#include <iostream>
+#include <atlimage.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 SampleGrabberCallback::SampleGrabberCallback()
 {
@@ -55,23 +61,43 @@ HRESULT STDMETHODCALLTYPE SampleGrabberCallback::BufferCB(double Time, BYTE *pBu
 	return S_OK;
 }
 
+static char *WBSToMBS(TCHAR *uncode)
+{
+#ifdef _UNICODE
+	DWORD num = WideCharToMultiByte(CP_ACP, 0, uncode, -1, NULL, 0, NULL, 0);
+	char *pbuf = NULL;
+	pbuf = (char*)malloc(num * sizeof(char)) + 1;
+	if (pbuf == NULL)
+	{
+		free(pbuf);
+		return false;
+	}
+	memset(pbuf, 0, num * sizeof(char) + 1);
+	WideCharToMultiByte(CP_ACP, 0, uncode, -1, pbuf, num, NULL, 0);
+	return pbuf;
+#else
+	return uncode;
+#endif
+}
 BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 {
+	TCHAR authpath[MAX_PATH] = { 0 };
+
 	SYSTEMTIME sysTime;
 	GetLocalTime(&sysTime);
 	StringCchCopy(m_chSwapStr,MAX_PATH,m_chTempPath);
 	if (m_bGetAuthPicture)
 	{
-		StringCchPrintf(m_chDirName, MAX_PATH, TEXT("\\videoauth.bmp"),
-			sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour,
-			sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
+		StringCchPrintf(m_chDirName, MAX_PATH, TEXT("\\videoauth.bmp"));
 	}
 	else
 	{
-		StringCchPrintf(m_chDirName, MAX_PATH, TEXT("\\%04i%02i%02i%02i%02i%02i%03ione.bmp"),
-			sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour,
-			sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
+		StringCchPrintf(m_chDirName, MAX_PATH, TEXT("\\%02i%02i%02ione.bmp"),
+			sysTime.wHour,sysTime.wMinute, sysTime.wSecond);
 	}
+
+	StringCchCat(authpath, MAX_PATH, m_chSwapStr);
+	StringCchCat(authpath, MAX_PATH, TEXT("\\videoauth.bmp"));
 
 	StringCchCat(m_chSwapStr,MAX_PATH,m_chDirName);
 	// %temp%/CaptureBmp/*
@@ -105,35 +131,43 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 	WriteFile( hf, pBuffer, lBufferSize, &dwWritten, NULL );
 	CloseHandle( hf );
 
-//	// 同时保存jpg图片
-//	char szSrcFileName[MAX_PATH];
-//	char szDstFileName[MAX_PATH];
-//	memset(szSrcFileName, 0, sizeof(char)*(MAX_PATH));
-//	memset(szDstFileName, 0, sizeof(char)*(MAX_PATH));
-//#ifdef _UNICODE
-//	DWORD num = WideCharToMultiByte(CP_ACP, 0, m_chSwapStr, -1, NULL, 0, NULL, 0);
-//	char *pbuf = NULL;
-//	pbuf = (char*)malloc(num * sizeof(char)) + 1;
-//	if (pbuf == NULL)
-//	{
-//	    free(pbuf);
-//		return false;
-//	}
-//	memset(pbuf, 0, num * sizeof(char) + 1);
-//	WideCharToMultiByte(CP_ACP, 0, m_chSwapStr, -1, pbuf, num, NULL, 0);
-//#else
-//	pbuf = (char*)m_chSwapStr;
-//#endif
-//
-//	size_t len = strlen(pbuf);
-//	memcpy(szSrcFileName, pbuf, len);
-//	memcpy(szDstFileName, pbuf, len);
-//	memcpy(szDstFileName + len - 3, "jpg", 3);
-//	CImageFormatConversion	ifc;
-//	bool bRet = ifc.ToJpg(szSrcFileName, szDstFileName, 100);
-//
-//	memcpy(szDstFileName + len - 3, "png", 3);
-//	bRet = ifc.ToPng(szSrcFileName, szDstFileName);
+	if (m_bGetAuthPicture)
+		return TRUE;
+
+	// 人脸对比
+	static XHF_SESS sess = NULL;
+	if (NULL == sess)
+	{
+		int FECreateCode = FECreate(&sess, 2);
+		if (FECreateCode != XHF_OK)
+		{
+			std::cout << FECreateCode << "FECreate error" << std::endl << std::flush;
+			return FECreateCode;
+		}
+	}
+
+	char *pauthpath = WBSToMBS(authpath);
+	char *pswapstr = WBSToMBS(m_chSwapStr);
+
+	cv::Mat img1 = cv::imread(pauthpath);
+	cv::Mat img2 = cv::imread(pswapstr);
+
+	float score = -1.0f;
+	int FECompareFaceCode = FECompareFace(sess, img1.data, img1.cols, img1.rows,
+		img2.data, img2.cols, img2.rows, &score);
+	if (FECompareFaceCode != XHF_OK)
+	{
+		std::cout << FECompareFaceCode << "FECompareFace error" << std::endl <<std::flush;
+		//Msg(NULL, TEXT("没有检测到人脸"));
+		//LockWorkStation();
+	}
+
+	if (score < 0.85)
+	{
+		std::cout << FECompareFaceCode << "FECompareFace error" << std::endl << std::flush;
+		//Msg(NULL, TEXT("相似度小于85%"));
+		LockWorkStation();
+	}
 
 	return TRUE;
 }
