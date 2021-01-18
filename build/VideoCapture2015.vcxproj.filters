@@ -80,5 +80,6 @@
   <ItemGroup>
     <Image Include="C:\Users\smile\Desktop\Vista_icons_07.ico" />
     <Image Include="..\res\Vista_icons_07.ico" />
+    <Image Include="..\res\bitmap1.bmp" />
   </ItemGroup>
 </Project>

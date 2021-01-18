@@ -7,7 +7,7 @@ CaptureVideo::CaptureVideo()
 	//COM Library Initialize
 	if (FAILED(CoInitialize(NULL)))
 	{
-		Msg(m_App,TEXT("CoInitialize Failed!\r\n"));
+		Msg(m_App, TEXT("´íÎó"), TEXT("CoInitialize Ê§°Ü!\r\n"));
 		return;
 	}
 	//initialize member variable

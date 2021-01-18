@@ -76,6 +76,7 @@
     <IncludePath>$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\tmp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>VideoAuth</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\bin\$(Platform)\$(Configuration)\</OutDir>
@@ -84,6 +85,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\tmp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>VideoAuth</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -172,6 +174,7 @@
     <None Include="../res/VideoCapture.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\res\bitmap1.bmp" />
     <Image Include="..\res\Vista_icons_07.ico" />
     <Image Include="C:\Users\smile\Desktop\Vista_icons_07.ico" />
   </ItemGroup>

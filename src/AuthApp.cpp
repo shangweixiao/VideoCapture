@@ -46,7 +46,7 @@ void AuthApp::OpenIE()
 	launchInfo.cbSize = sizeof(IELAUNCHURLINFO);
 	launchInfo.dwCreationFlags = NULL;
 
-	HRESULT hr = IELaunchURL(TEXT("about:blank"), &pi, &launchInfo);
+	HRESULT hr = IELaunchURL(TEXT("http://211.166.247.71:8080/cgw-login/success"), &pi, &launchInfo);
 	if (SUCCEEDED(hr))
 	{
 		//WaitForInputIdle(pi.hProcess, INFINITE);

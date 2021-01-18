@@ -1,6 +1,6 @@
 #include "common.h"
 
-void Msg(HWND hwnd,TCHAR *szFormat, ...)
+void Msg(HWND hwnd,TCHAR *title,TCHAR *szFormat, ...)
 {
 	TCHAR szBuffer[1024];  
 	const size_t NUMCHARS = sizeof(szBuffer) / sizeof(szBuffer[0]);
@@ -14,7 +14,7 @@ void Msg(HWND hwnd,TCHAR *szFormat, ...)
 
 	szBuffer[LASTCHAR] = TEXT('\0');
 
-	MessageBox(hwnd, szBuffer, TEXT("Message"), MB_OK | MB_ICONERROR);
+	MessageBox(hwnd, szBuffer, title, MB_OK);
 }
 
 bool Bstr_Compare(BSTR bstrFilter,BSTR bstrDevice)

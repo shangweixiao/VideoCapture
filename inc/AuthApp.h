@@ -9,6 +9,7 @@ public:
 
 	void OpenIE();
 	BOOL  CloseIE();
+	BOOL AppExited();
 	HWND GetWindowHwndByPID(DWORD dwProcessID);
 
 	HWND m_App;

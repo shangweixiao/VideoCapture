@@ -163,27 +163,39 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 		//LockWorkStation();
 	}
 
+	static int g_errcnt = 0; // 认证错误计数，连续三次错误发送认证错误消息。
 	if (score < 0.85)
 	{
-		//LockWorkStation();
-		if (NULL != authapp)
+		if (g_errcnt > 2)
 		{
-			authapp->CloseIE();
-			delete authapp;
-			authapp = NULL;
-		}
+			//LockWorkStation();
+			if (NULL != authapp)
+			{
+				authapp->CloseIE();
+				delete authapp;
+				authapp = NULL;
+			}
 
-		PostMessage(m_App, WM_COMMAND, ID_FACE_DETECT_FAIL, 0);
+			PostMessage(m_App, WM_COMMAND, ID_FACE_DETECT_FAIL, 0);
+			g_errcnt = 0;
+		}
+		else
+		{
+			g_errcnt += 1;
+		}
+		
 	}
 	else
 	{
+		g_errcnt = 0;
+
 		if (NULL != authapp && authapp->AppExited())
 		{
 			delete authapp;
 			authapp = NULL;
 		}
 
-		if (NULL == authapp)
+		if (NULL == authapp && TRUE == m_bGetPicture)
 		{
 			authapp = new AuthApp();
 			authapp->m_App = m_App;

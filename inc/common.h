@@ -20,7 +20,7 @@
 // Application-defined message to notify app of filter graph events
 #define WM_GRAPHNOTIFY  WM_APP+100
 
-void Msg(HWND hwnd,TCHAR *szFormat, ...);
+void Msg(HWND hwnd,TCHAR *title,TCHAR *szFormat, ...);
 bool Bstr_Compare(BSTR bstrFilter,BSTR bstrDevice);
 
 #endif// __COMMON_H__

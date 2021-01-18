@@ -50,9 +50,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 	int XHFInitCode = XHFInit("./models", "sparkAI_facetest_2021");
 	if (XHFInitCode != XHF_OK)
 	{
-		TCHAR buf[128] = {0};
-		wsprintf(buf, TEXT("人脸识别库初始化错误。错误码：0x%X"), XHFFinal);
-		Msg(hDlg, buf);
+		Msg(hDlg, TEXT("错误"), TEXT("人脸识别库初始化错误。错误码：0x%X"), XHFFinal);
 	}
 
 	{
@@ -66,7 +64,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 		if (hFind == INVALID_HANDLE_VALUE)
 		{
 			EnableWindow(GetDlgItem(hDlg, IDONESHOT), FALSE);
-			Msg(hDlg, TEXT("未设置认证图像，请点击设置按钮设置认证图像"));
+			Msg(hDlg, TEXT("提示"), TEXT("未发现认证照片，请点击设置按钮设置您的认证照片"));
 		}
 		else
 		{
@@ -123,7 +121,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if(g_CaptureVideo.m_nCaptureDeviceNumber == 0)
 			{
-				Msg(hDlg,TEXT("没有摄像头设备"));
+				Msg(hDlg, TEXT("提示"), TEXT("没有发现摄像头设备"));
 				EnableWindow(GetDlgItem(hDlg,IDC_PREVIWE),FALSE);
 				EnableWindow(GetDlgItem(hDlg, IDONESHOT), FALSE);
 			}
@@ -153,6 +151,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
            break;
 		case IDONESHOT: // 认证按钮
             {
+				MessageBox(hDlg, TEXT("刷脸认证中...，使用过程中请保持正脸面向摄像头。"), TEXT("提示"), MB_OK);
                 //g_CaptureVideo.GrabOneFrame(TRUE);
 				SetTimer(hDlg,ID_TIMER,50, TimerGetPicture);
 				EnableWindow(GetDlgItem(hDlg, IDC_PREVIWE), FALSE);
@@ -162,6 +161,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDC_PREVIWE: // 设置按钮，设置初始对比图像
 			{
+				MessageBox(hDlg, TEXT("准备生成认证照片，请正脸面向摄像头。"),TEXT("提示"),MB_OK);
 				EnableWindow(GetDlgItem(hDlg, IDC_PREVIWE), FALSE);
 				EnableWindow(GetDlgItem(hDlg, IDONESHOT), TRUE);
 				// 设置认证图像
@@ -169,15 +169,18 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case ID_FACE_DETECT_FAIL:
+			g_CaptureVideo.GrabOneFrame(FALSE);
 			ShowWindow(hDlg, SW_NORMAL);
 			EnableWindow(GetDlgItem(hDlg, IDONESHOT), TRUE);
 			KillTimer(hDlg, ID_TIMER);
-			Msg(hDlg,TEXT("人脸检测失败。"));
+			Msg(hDlg, TEXT("提示"), TEXT("人脸比对检测失败。"));
 			break;
 		case ID_FACE_APP_QUIT:
+			g_CaptureVideo.GrabOneFrame(FALSE);
 			ShowWindow(hDlg, SW_NORMAL);
 			EnableWindow(GetDlgItem(hDlg, IDONESHOT), TRUE);
 			KillTimer(hDlg, ID_TIMER);
+			Msg(hDlg, TEXT("提示"), TEXT("系统已退出。"));
 			break;
 		default:
 			break;
@@ -192,7 +195,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 VOID CALLBACK TimerGetPicture(HWND hDlg, UINT message, UINT_PTR iTimerID, DWORD dwTimer)
 {
 	g_CaptureVideo.GrabOneFrame(TRUE);
-	SetTimer(hDlg, ID_TIMER, 10*1000, TimerGetPicture);
+	SetTimer(hDlg, ID_TIMER, 3*1000, TimerGetPicture);
 	g_nTimerCount++;
 }
 
@@ -200,6 +203,8 @@ VOID CALLBACK TimerSetAuthPicture(HWND hDlg, UINT message, UINT_PTR iTimerID, DW
 {
 	g_CaptureVideo.GrabAuthFrame(TRUE);
 	KillTimer(hDlg, ID_TIMER);
+	Msg(hDlg, TEXT("提示"), TEXT("已生成您的认证照片，系统将只有您本人在摄像头前时可以正常使用，您离开后系统将自动关闭。\n"
+		"现在您可以点击“认证”按钮开始使用系统。"));
 }
 
 VOID SetWindowPosCenter(HWND hDlg)
