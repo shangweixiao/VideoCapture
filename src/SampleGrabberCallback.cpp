@@ -177,12 +177,15 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 	}
 	else
 	{
-		if (NULL == authapp)
+		if (NULL != authapp)
 		{
-			authapp = new AuthApp();
-			authapp->m_App = m_App;
-			authapp->OpenIE();
+			authapp->CloseIE();
+			delete authapp;
 		}
+
+		authapp = new AuthApp();
+		authapp->m_App = m_App;
+		authapp->OpenIE();
 	}
 
 	FEDestroy(&sess);
