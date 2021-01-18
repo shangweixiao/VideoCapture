@@ -1,6 +1,8 @@
 #include "AuthApp.h"
 #include <windows.h>
 #include <tlhelp32.h>
+#include <Iepmapi.h>
+#include "common.h"
 
 AuthApp::AuthApp()
 {
@@ -12,21 +14,105 @@ AuthApp::~AuthApp()
 	CloseIE();
 }
 
+///< 枚举窗口参数
+typedef struct
+{
+	HWND    hwndWindow;     // 窗口句柄
+	DWORD   dwProcessID;    // 进程ID
+}EnumWindowsArg;
+
+void ThreadFunc(LPVOID lpThreadParameter)
+{
+	EnumWindowsArg *pa = (EnumWindowsArg*)lpThreadParameter;
+	HANDLE hBaseProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pa->dwProcessID);
+	WaitForSingleObject(hBaseProcess, INFINITE);
+
+	PostMessage(pa->hwndWindow, WM_COMMAND, ID_FACE_APP_QUIT, 0);
+	free(pa);
+}
+
+
 void AuthApp::OpenIE()
 {
-	TCHAR chPath[] = TEXT("C:\\Program Files (x86)\\Internet Explorer\\iexplore.exe");
+	TCHAR chPath[] = TEXT("C:\\Program Files\\Internet Explorer\\iexplore.exe");
+	//TCHAR chPath[] = TEXT("C:\\windows\\notepad.exe");
 
-	STARTUPINFO si;
-	ZeroMemory(&si, sizeof(si));
-	GetStartupInfo(&si);
-	si.dwFlags = STARTF_USESHOWWINDOW;
-	si.wShowWindow = SW_HIDE;
+	IELAUNCHURLINFO launchInfo;
+	launchInfo.cbSize = sizeof(IELAUNCHURLINFO);
+	launchInfo.dwCreationFlags = NULL;
 
-	// Start the child process
-	if (!CreateProcess(chPath, TEXT("open http://www.baidu.com/"), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	HRESULT hr = IELaunchURL(TEXT("about:blank"), &pi, &launchInfo);
+	if (SUCCEEDED(hr))
 	{
-		ZeroMemory(&pi, sizeof(pi));
+		//WaitForInputIdle(pi.hProcess, INFINITE);
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+
+		DWORD processId = pi.dwProcessId;
+		DWORD parentId;
+		PROCESSENTRY32 processEntry = { 0 };
+		processEntry.dwSize = sizeof(PROCESSENTRY32);
+		//给系统内的所有进程拍一个快照
+		HANDLE handleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+
+		//遍历每个正在运行的进程
+		if (Process32First(handleSnap, &processEntry))
+		{
+			do
+			{
+				// 找到父进程ID
+				if (processEntry.th32ProcessID == processId)
+				{
+					parentId = processEntry.th32ParentProcessID;
+					pi.dwProcessId = parentId;
+					break;
+				}
+			} while (Process32Next(handleSnap, &processEntry));
+		}
+
+		DWORD ThreadID;
+		EnumWindowsArg *pa = (EnumWindowsArg *)malloc(sizeof(EnumWindowsArg));
+		pa->dwProcessID = parentId;
+		pa->hwndWindow = m_App;
+		HANDLE hThread = CreateThread(NULL,
+			0,
+			(LPTHREAD_START_ROUTINE)ThreadFunc,
+			(void *)pa,
+			0,
+			&ThreadID);
+		CloseHandle(hThread);
 	}
+}
+
+///< 枚举窗口回调函数
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+{
+	EnumWindowsArg *pArg = (EnumWindowsArg *)lParam;
+	DWORD  dwProcessID = 0;
+	// 通过窗口句柄取得进程ID
+	::GetWindowThreadProcessId(hwnd, &dwProcessID);
+	if (dwProcessID == pArg->dwProcessID)
+	{
+		pArg->hwndWindow = hwnd;
+		// 找到了返回FALSE
+		return FALSE;
+	}
+	// 没找到，继续找，返回TRUE
+	return TRUE;
+}
+///< 通过进程ID获取窗口句柄
+HWND AuthApp::GetWindowHwndByPID(DWORD dwProcessID)
+{
+	HWND hwndRet = NULL;
+	EnumWindowsArg ewa;
+	ewa.dwProcessID = dwProcessID;
+	ewa.hwndWindow = NULL;
+	EnumWindows(EnumWindowsProc, (LPARAM)&ewa);
+	if (ewa.hwndWindow)
+	{
+		hwndRet = ewa.hwndWindow;
+	}
+	return hwndRet;
 }
 
 BOOL AuthApp::CloseIE()
@@ -40,23 +126,31 @@ BOOL AuthApp::CloseIE()
 		HANDLE handleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
 		//遍历每个正在运行的进程
-		if (Process32First(handleSnap, &processEntry)) {
+		if (Process32First(handleSnap, &processEntry))
+		{
 			BOOL isContinue = TRUE;
 
 			//终止子进程
-			do {
-				if (processEntry.th32ParentProcessID == processId) {
+			do 
+			{
+				if (processEntry.th32ParentProcessID == processId)
+				{
 					HANDLE hChildProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processEntry.th32ProcessID);
-					if (hChildProcess) {
-						TerminateProcess(hChildProcess, 0);
-						CloseHandle(hChildProcess);
+					if (hChildProcess)
+					{
+						HWND wnd = GetWindowHwndByPID(pi.dwProcessId);
+						PostMessage(wnd, WM_CLOSE, 0, 0);
+
+						//TerminateProcess(hChildProcess, 0);
+						//CloseHandle(hChildProcess);
 					}
 				}
 				isContinue = Process32Next(handleSnap, &processEntry);
 			} while (isContinue);
 
 			HANDLE hBaseProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
-			if (hBaseProcess) {
+			if (hBaseProcess)
+			{
 				TerminateProcess(hBaseProcess, 0);
 				CloseHandle(hBaseProcess);
 			}

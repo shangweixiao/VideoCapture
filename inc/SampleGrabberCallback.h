@@ -27,6 +27,7 @@ public:
 	TCHAR m_chSwapStr[MAX_PATH];
 	TCHAR m_chDirName[MAX_PATH];
 	AuthApp  *authapp = NULL;
+	HWND m_App;
 };
 
 #endif //__SAMPLEGRABBERCALLBACK_H__

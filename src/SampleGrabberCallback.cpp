@@ -10,7 +10,7 @@
 SampleGrabberCallback::SampleGrabberCallback()
 {
 	m_bGetPicture = FALSE;
-
+	authapp = NULL;
 	//Get template path
 	GetTempPath(MAX_PATH,m_chTempPath);
 	StringCchCat(m_chTempPath,MAX_PATH,TEXT("CaptureBmp"));
@@ -70,20 +70,13 @@ HRESULT STDMETHODCALLTYPE SampleGrabberCallback::BufferCB(double Time, BYTE *pBu
 	return S_OK;
 }
 
-static char *WBSToMBS(TCHAR *uncode)
+static char *WBSToMBS(TCHAR *uncode,char mbs[MAX_PATH * 2])
 {
 #ifdef _UNICODE
 	DWORD num = WideCharToMultiByte(CP_ACP, 0, uncode, -1, NULL, 0, NULL, 0);
-	char *pbuf = NULL;
-	pbuf = (char*)malloc(num * sizeof(char)) + 1;
-	if (pbuf == NULL)
-	{
-		free(pbuf);
-		return false;
-	}
-	memset(pbuf, 0, num * sizeof(char) + 1);
-	WideCharToMultiByte(CP_ACP, 0, uncode, -1, pbuf, num, NULL, 0);
-	return pbuf;
+	memset(mbs, 0, MAX_PATH * 2);
+	WideCharToMultiByte(CP_ACP, 0, uncode, -1, mbs, num, NULL, 0);
+	return mbs;
 #else
 	return uncode;
 #endif
@@ -143,22 +136,22 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 		return TRUE;
 
 	// 人脸对比
-	XHF_SESS sess = NULL;
-	if (NULL == sess)
+	XHF_SESS sess;
+	int FECreateCode = FECreate(&sess);
+	if (FECreateCode != XHF_OK)
 	{
-		int FECreateCode = FECreate(&sess);
-		if (FECreateCode != XHF_OK)
-		{
-			std::cout << FECreateCode << "FECreate error" << std::endl << std::flush;
-			return FECreateCode;
-		}
+		std::cout << FECreateCode << "FECreate error" << std::endl << std::flush;
+		return FECreateCode;
 	}
 
-	char *pauthpath = WBSToMBS(authpath);
-	char *pswapstr = WBSToMBS(m_chSwapStr);
+	char mbs_ap[MAX_PATH * 2] = {0};
+	char mbs_ss[MAX_PATH * 2] = { 0 };
 
-	cv::Mat img1 = cv::imread(pauthpath);
-	cv::Mat img2 = cv::imread(pswapstr);
+	WBSToMBS(authpath, mbs_ap);
+	WBSToMBS(m_chSwapStr, mbs_ss);
+
+	cv::Mat img1 = cv::imread(mbs_ap);
+	cv::Mat img2 = cv::imread(mbs_ss);
 
 	float score = -1.0f;
 	int FECompareFaceCode = FECompareFace(sess, img1.data, img1.cols, img1.rows,
@@ -172,8 +165,6 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 
 	if (score < 0.85)
 	{
-		std::cout << FECompareFaceCode << "FECompareFace error" << std::endl << std::flush;
-		//Msg(NULL, TEXT("相似度小于85%"));
 		//LockWorkStation();
 		if (NULL != authapp)
 		{
@@ -181,12 +172,15 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 			delete authapp;
 			authapp = NULL;
 		}
+
+		PostMessage(m_App, WM_COMMAND, ID_FACE_DETECT_FAIL, 0);
 	}
 	else
 	{
 		if (NULL == authapp)
 		{
 			authapp = new AuthApp();
+			authapp->m_App = m_App;
 			authapp->OpenIE();
 		}
 	}

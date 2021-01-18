@@ -7,6 +7,9 @@
 #include <assert.h>
 #pragma comment(lib,"Strmiids.lib")
 
+#define ID_FACE_DETECT_FAIL 20000
+#define ID_FACE_APP_QUIT 20001
+
 //define release maco
 #define ReleaseInterface(x) \
 	if ( NULL != x ) \

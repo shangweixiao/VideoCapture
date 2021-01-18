@@ -9,8 +9,9 @@ public:
 
 	void OpenIE();
 	BOOL  CloseIE();
+	HWND GetWindowHwndByPID(DWORD dwProcessID);
 
-private:
+	HWND m_App;
 	PROCESS_INFORMATION pi;
 };
 

@@ -316,6 +316,7 @@ HRESULT CaptureVideo::OpenDevice(int deviceID, LONG nLeft, LONG nTop, LONG nWide
 void CaptureVideo::GrabOneFrame(BOOL bGrab)
 {
 	m_bGetOneShot = bGrab;
+	g_sampleGrabberCB.m_App = m_App;
 	g_sampleGrabberCB.m_bGetPicture = bGrab;
 	g_sampleGrabberCB.m_bGetAuthPicture = FALSE;
 }

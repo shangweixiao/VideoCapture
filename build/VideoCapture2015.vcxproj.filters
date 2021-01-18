@@ -77,4 +77,8 @@
       <Filter>res</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="C:\Users\smile\Desktop\Vista_icons_07.ico" />
+    <Image Include="..\res\Vista_icons_07.ico" />
+  </ItemGroup>
 </Project>
