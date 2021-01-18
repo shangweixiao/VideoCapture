@@ -14,18 +14,23 @@ AuthApp::~AuthApp()
 	CloseIE();
 }
 
-///< 枚举窗口参数
+///<线程参数
 typedef struct
 {
 	HWND    hwndWindow;     // 窗口句柄
-	DWORD   dwProcessID;    // 进程ID
-}EnumWindowsArg;
+	PROCESS_INFORMATION *pi;    // 进程信息
+}ThreadArg;
 
 void ThreadFunc(LPVOID lpThreadParameter)
 {
-	EnumWindowsArg *pa = (EnumWindowsArg*)lpThreadParameter;
-	HANDLE hBaseProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pa->dwProcessID);
+	ThreadArg *pa = (ThreadArg*)lpThreadParameter;
+	HANDLE hBaseProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pa->pi->dwProcessId);
 	WaitForSingleObject(hBaseProcess, INFINITE);
+
+	TerminateProcess(hBaseProcess, 0);
+	CloseHandle(hBaseProcess);
+
+	ZeroMemory(pa->pi, sizeof(PROCESS_INFORMATION));
 
 	PostMessage(pa->hwndWindow, WM_COMMAND, ID_FACE_APP_QUIT, 0);
 	free(pa);
@@ -71,18 +76,25 @@ void AuthApp::OpenIE()
 		}
 
 		DWORD ThreadID;
-		EnumWindowsArg *pa = (EnumWindowsArg *)malloc(sizeof(EnumWindowsArg));
-		pa->dwProcessID = parentId;
-		pa->hwndWindow = m_App;
+		ThreadArg *ta = (ThreadArg *)malloc(sizeof(ThreadArg));
+		ta->pi = &pi;
+		ta->hwndWindow = m_App;
 		HANDLE hThread = CreateThread(NULL,
 			0,
 			(LPTHREAD_START_ROUTINE)ThreadFunc,
-			(void *)pa,
+			(void *)ta,
 			0,
 			&ThreadID);
 		CloseHandle(hThread);
 	}
 }
+
+///< 枚举窗口参数
+typedef struct
+{
+	HWND    hwndWindow;     // 窗口句柄
+	DWORD   dwProcessID;    // 进程ID
+}EnumWindowsArg;
 
 ///< 枚举窗口回调函数
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
@@ -160,4 +172,9 @@ BOOL AuthApp::CloseIE()
 	}
 
 	return TRUE;
+}
+
+BOOL AuthApp::AppExited()
+{
+	return pi.dwProcessId ? FALSE : TRUE ;
 }
