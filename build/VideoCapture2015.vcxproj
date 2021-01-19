@@ -165,18 +165,20 @@
     <ClInclude Include="..\inc\ImageFormatConversion.h" />
     <ClInclude Include="..\inc\xhfacelite_api.h" />
     <ClInclude Include="..\inc\xhfacelite_type.h" />
-    <ClInclude Include="..\res\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="../res/VideoCapture.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../res/VideoCapture.ico" />
+    <None Include="..\res\cursor1.cur" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\bitmap1.bmp" />
+    <Image Include="..\res\ccw.bmp" />
     <Image Include="..\res\Vista_icons_07.ico" />
     <Image Include="C:\Users\smile\Desktop\Vista_icons_07.ico" />
+    <Image Include="ccw.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -30,9 +30,9 @@ void ThreadFunc(LPVOID lpThreadParameter)
 	TerminateProcess(hBaseProcess, 0);
 	CloseHandle(hBaseProcess);
 
-	ZeroMemory(pa->pi, sizeof(PROCESS_INFORMATION));
-
 	PostMessage(pa->hwndWindow, WM_COMMAND, ID_FACE_APP_QUIT, 0);
+
+	ZeroMemory(pa->pi, sizeof(PROCESS_INFORMATION));
 	free(pa);
 }
 

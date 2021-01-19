@@ -200,6 +200,7 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 			authapp = new AuthApp();
 			authapp->m_App = m_App;
 			authapp->OpenIE();
+			PostMessage(m_App, WM_COMMAND, ID_FACE_DETECT_SUCCESS, 0);
 		}
 	}
 

@@ -13,6 +13,9 @@
 CaptureVideo g_CaptureVideo;
 
 //CaptureAudio g_CaptureAudio;
+HWND hwndImg;
+HBITMAP hBitmap;
+HWND hwndText;
 HWND hwndCombo1;
 //HWND hwndCombo2;
 BSTR bstrDeviceName;
@@ -38,7 +41,9 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 
     MSG msg;
 	HWND hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_DIALOG1),NULL, WndProc);
-	    
+	
+	//SetWindowPos(hDlg,NULL,0,0,455,600, SWP_NOMOVE);
+	//SetDialogBkColor();
 	ShowWindow(hDlg,iCmdShow);
 	UpdateWindow(hDlg);
 
@@ -52,6 +57,9 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 	{
 		Msg(hDlg, TEXT("错误"), TEXT("人脸识别库初始化错误。错误码：0x%X"), XHFFinal);
 	}
+
+	hBitmap = LoadBitmap(hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
+	SendMessage(hwndImg, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
 
 	{
 		TCHAR TempPath[MAX_PATH] = { 0 };
@@ -101,15 +109,35 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			SetWindowPosCenter(hDlg); //set Dialog at window center
 			//////////////////////////////////////////////////////////////////////////
 			g_CaptureVideo.m_App = hDlg;
+			//SetWindowPos(hDlg, HWND_NOTOPMOST, 0, 0, 450, 600, SWP_NOMOVE);
 			//g_CaptureAudio.m_App = hDlg;
 			dwBaseUnits = GetDialogBaseUnits(); 
+			//Msg(hDlg,TEXT("提示"),TEXT("width = %d,height = %d"), LOWORD(dwBaseUnits), HIWORD(dwBaseUnits));
+			
+			hwndImg = CreateWindow(TEXT("STATIC"), NULL,
+				WS_VISIBLE | WS_CHILD | SS_BITMAP,
+				10, //(6 * LOWORD(dwBaseUnits)) / 4, 
+				0, //(2 * HIWORD(dwBaseUnits)) / 8, 
+				330,
+				120,
+				hDlg, (HMENU)10004, NULL, NULL);
+
+			hwndText = CreateWindow(TEXT("STATIC"), TEXT(""),
+				WS_VISIBLE | WS_CHILD | SS_LEFT,
+				10, //(6 * LOWORD(dwBaseUnits)) / 4, 
+				123, //(2 * HIWORD(dwBaseUnits)) / 8, 
+				(100 * LOWORD(dwBaseUnits)) / 4,
+				(50 * HIWORD(dwBaseUnits)) / 8,
+				hDlg, (HMENU)10005, NULL, NULL);
+			SetWindowText(hwndText, TEXT("摄像头："));
+
 			hwndCombo1 = CreateWindow(TEXT("COMBOBOX"), TEXT(""), 
 				CBS_DROPDOWN | WS_CHILD | WS_VISIBLE, 
-				(6 * LOWORD(dwBaseUnits)) / 4, 
-				(2 * HIWORD(dwBaseUnits)) / 8, 
+				70, //(6 * LOWORD(dwBaseUnits)) / 4, 
+				120, //(2 * HIWORD(dwBaseUnits)) / 8, 
 				(100 * LOWORD(dwBaseUnits)) / 4, 
 				(50 * HIWORD(dwBaseUnits)) / 8, 
-				hDlg, (HMENU)ID_COMBOBOX, NULL, NULL);  
+				hDlg, (HMENU)ID_COMBOBOX, NULL, NULL); 
 
 			//Video
 			g_CaptureVideo.EnumAllDevices(hwndCombo1); //Enum All Camera
@@ -128,7 +156,7 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 			{
 				iGetCurSel = ComboBox_GetCurSel(hwndCombo1);
-				g_CaptureVideo.OpenDevice(iGetCurSel, 20, 30, 430, 400);
+				g_CaptureVideo.OpenDevice(iGetCurSel, 10, 150, 418, 330);
 				EnableWindow(GetDlgItem(hDlg, IDONESHOT), TRUE);
 			}
         }
@@ -151,12 +179,11 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
            break;
 		case IDONESHOT: // 认证按钮
             {
-				MessageBox(hDlg, TEXT("刷脸认证中...，使用过程中请保持正脸面向摄像头。"), TEXT("提示"), MB_OK);
+				MessageBox(hDlg, TEXT("刷脸认证准备中...，使用过程中请保持正脸面向摄像头。"), TEXT("提示"), MB_OK);
                 //g_CaptureVideo.GrabOneFrame(TRUE);
 				SetTimer(hDlg,ID_TIMER,50, TimerGetPicture);
 				EnableWindow(GetDlgItem(hDlg, IDC_PREVIWE), FALSE);
 				EnableWindow(GetDlgItem(hDlg, IDONESHOT), FALSE);
-				ShowWindow(hDlg, SW_MINIMIZE);
             }
 			break;
 		case IDC_PREVIWE: // 设置按钮，设置初始对比图像
@@ -180,7 +207,10 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowWindow(hDlg, SW_NORMAL);
 			EnableWindow(GetDlgItem(hDlg, IDONESHOT), TRUE);
 			KillTimer(hDlg, ID_TIMER);
-			Msg(hDlg, TEXT("提示"), TEXT("系统已退出。"));
+			Msg(hDlg, TEXT("提示"), TEXT("浏览器已退出。"));
+			break;
+		case ID_FACE_DETECT_SUCCESS:
+			ShowWindow(hDlg, SW_MINIMIZE);
 			break;
 		default:
 			break;
@@ -188,6 +218,11 @@ INT_PTR CALLBACK WndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOVE:
 		g_CaptureVideo.m_pVideoWindow->NotifyOwnerMessage((OAHWND)hDlg, message, wParam, lParam);
 		break;
+	case WM_CTLCOLORSTATIC:
+	case WM_CTLCOLORDLG:
+		{
+			return (INT_PTR)GetStockObject(WHITE_BRUSH);
+		}
 	}
 	return (FALSE);
 }
@@ -203,8 +238,8 @@ VOID CALLBACK TimerSetAuthPicture(HWND hDlg, UINT message, UINT_PTR iTimerID, DW
 {
 	g_CaptureVideo.GrabAuthFrame(TRUE);
 	KillTimer(hDlg, ID_TIMER);
-	Msg(hDlg, TEXT("提示"), TEXT("已生成您的认证照片，系统将只有您本人在摄像头前时可以正常使用，您离开后系统将自动关闭。\n"
-		"现在您可以点击“认证”按钮开始使用系统。"));
+	Msg(hDlg, TEXT("提示"), TEXT("已生成您的认证照片，浏览器将只有您本人在摄像头前时可以正常使用，您离开后浏览器将自动关闭。\n"
+		"现在您可以点击“认证”按钮开始使用。"));
 }
 
 VOID SetWindowPosCenter(HWND hDlg)
