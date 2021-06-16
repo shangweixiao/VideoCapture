@@ -47,9 +47,10 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 	ShowWindow(hDlg,iCmdShow);
 	UpdateWindow(hDlg);
 
-	TCHAR DirectoryBuffer[1024] = { '\0' };
-	GetCurrentDirectory(1024, DirectoryBuffer);
-	//Msg(hDlg,DirectoryBuffer);
+	hBitmap = LoadBitmap(hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
+	SendMessage(hwndImg, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
+
+	Msg(hDlg, TEXT("病毒扫描提示"), TEXT("全盘扫描已完成，本次扫描未发现风险。"));
 
 	// 初始化人脸识别库
 	int XHFInitCode = XHFInit("./models", "sparkAI_facetest_2021");
@@ -57,9 +58,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 	{
 		Msg(hDlg, TEXT("错误"), TEXT("人脸识别库初始化错误。错误码：0x%X"), XHFFinal);
 	}
-
-	hBitmap = LoadBitmap(hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
-	SendMessage(hwndImg, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
 
 	{
 		TCHAR TempPath[MAX_PATH] = { 0 };

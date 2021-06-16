@@ -164,14 +164,14 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 	}
 
 	static int g_errcnt = 0; // 认证错误计数，连续三次错误发送认证错误消息。
-	if (score < 0.85)
+	if (score < 0.33)
 	{
 		if (g_errcnt > 2)
 		{
 			//LockWorkStation();
 			if (NULL != authapp)
 			{
-				authapp->CloseIE();
+				//authapp->CloseIE();
 				delete authapp;
 				authapp = NULL;
 			}
@@ -199,7 +199,7 @@ BOOL SampleGrabberCallback::SaveBitmap(BYTE * pBuffer, long lBufferSize )
 		{
 			authapp = new AuthApp();
 			authapp->m_App = m_App;
-			authapp->OpenIE();
+			authapp->AppStart();
 			PostMessage(m_App, WM_COMMAND, ID_FACE_DETECT_SUCCESS, 0);
 		}
 	}

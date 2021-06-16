@@ -6,13 +6,18 @@ class AuthApp {
 public:
 	AuthApp();
 	~AuthApp();
+public:
+	HWND m_App;
+	BOOL AppStart();
+	BOOL AppExited();
 
+private:
 	void OpenIE();
 	BOOL  CloseIE();
-	BOOL AppExited();
+	void OpenChrome();
+	BOOL  CloseChrome();
 	HWND GetWindowHwndByPID(DWORD dwProcessID);
 
-	HWND m_App;
 	PROCESS_INFORMATION pi;
 };
 

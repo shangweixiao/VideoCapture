@@ -107,11 +107,11 @@
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>E:\workspace\薪火人脸识别\VideoCapture\opencv\include;../inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\workspace\项目\薪火人脸识别\VideoCapture\opencv\include;../inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\workspace\薪火人脸识别\VideoCapture\vc14-x64;E:\workspace\薪火人脸识别\VideoCapture\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>E:\workspace\项目\薪火人脸识别\VideoCapture\vc14-x64;E:\workspace\项目\薪火人脸识别\VideoCapture\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>xhfacelite.lib;opencv_world346.lib;Iepmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -135,13 +135,13 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>../inc;E:\workspace\薪火人脸识别\VideoCapture\opencv\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../inc;E:\workspace\项目\薪火人脸识别\VideoCapture\opencv\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>E:\workspace\薪火人脸识别\VideoCapture\opencv\lib;E:\workspace\薪火人脸识别\VideoCapture\vc14-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>E:\workspace\项目\薪火人脸识别\VideoCapture\opencv\lib;E:\workspace\项目\薪火人脸识别\VideoCapture\vc14-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>xhfacelite.lib;opencv_world346.lib;Iepmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
